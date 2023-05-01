@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>logo_VRCFTtoVMCP.ico</ApplicationIcon>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\avtr_00000000-0000-0000-0000-000000000000.json" />
+    <None Remove="Resources\avtr_00000000-0000-0000-0000-000000000001.json" />
+    <None Remove="Resources\logo_ThisApp.png" />
+    <None Remove="Resources\logo_VirtualMotionCapture.png" />
+    <None Remove="Resources\logo_VRCFaceTracking.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="logo_VRCFTtoVMCP.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\avtr_00000000-0000-0000-0000-000000000000.json" />
+    <EmbeddedResource Include="Resources\avtr_00000000-0000-0000-0000-000000000001.json" />
+    <Resource Include="Resources\logo_ThisApp.png" />
+    <Resource Include="Resources\logo_VirtualMotionCapture.png" />
+    <Resource Include="Resources\logo_VRCFaceTracking.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
