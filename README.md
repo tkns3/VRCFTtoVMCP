@@ -70,24 +70,40 @@ Quest Pro と VirtualMotionCapture を使う例。
 
 ## VRCFTtoVMCP の設定
 
-VRCFaceTracking と通信するポートは基本的に変更不要です。
+### HOME 画面
 
-VMCProtocol の送信先アドレスとポートは受信するアプリにあわせて変更してください。デフォルトは VirtualMotionCaptrue にあわせています。
+<img src="image/setting_home.png" alt="attach:setting_home" title="attach:setting_home">
 
-Send rate per second は VMCProtocol の秒間あたりのメッセージ送信数です。数値を大きくすると表情変化が滑らかになります。ただし VRCFaceTracking の送信頻度のほうが頭打ちとなり 30 より大きくしても効果は少ないかもしれません。
+- ① THIS APP の受信ポート
+  - 基本的に変更不要です。
+- ② VRCFaceTracking の受信ポート
+  - 基本的に変更不要です。
+- ③ VMCProtocol 受信アプリのアドレスとポート
+  - VMCProtocol を受信するアプリにあわせて変更してください。
+  - デフォルトは VirtualMotionCaptrue にあわせています。
+- ④ Send rate per second
+  - 秒間あたりの VMCProtocol メッセージ送信数です。
+  - 数値を大きくすると表情変化が滑らかになります。ただし VRCFaceTracking の送信頻度のほうが頭打ちとなり 30 より大きくしても効果は少ないかもしれません。
 
-VRCFTtoVMCP.exe と同じフォルダに VRCFTtoVMCP.json を作成して起動時の設定値を変えることが可能です。
+### OPTIONS 画面
 
-```
-{
-  "autoStart": false,
-  "addr1": "127.0.0.1",
-  "port1": 39540,
-  "port2": 9000,
-  "port3": 9001,
-  "rate": 30
-}
-```
+<img src="image/setting_options.png" alt="attach:setting_options" title="attach:setting_options">
+
+- ① Eye Tracking Target Position: Use
+  - オンにすると VMCProtocol の Eye Tracking Target Position (/VMC/Ext/Set/Eye) を送信します。これにより VRM Look At Bone Applyer を設定しているアバターはボーンによる視線制御が行われます。
+  - Blendshape の EyeLook** で瞳の向きを変えているアバターを使う場合はオフにする、もしくはオンにして Multiplier の数値を下げることをお勧めします。
+- ② Eye Tracking Target Position: Multiplier for up
+  - Eye Tracking Target Position による視線の上方向への移動量の倍率です。
+- ③ Eye Tracking Target Position: Multiplier for down
+  - Eye Tracking Target Position による視線の下方向への移動量の倍率です。
+- ④ Eye Tracking Target Position: Multiplier for left
+  - Eye Tracking Target Position による視線の左方向への移動量の倍率です。
+- ⑤ Eye Tracking Target Position: Multiplier for right
+  - Eye Tracking Target Position による視線の右方向への移動量の倍率です。
+- ⑥ Other: Auto Start
+  - オンにするとアプリ起動時に自動で START します。
+- ⑦ Aciton: Save Config
+  - クリックすると設定ファイル VRCFTtoVMCP.json を実行ファイルと同じフォルダに作成します。
 
 
 # 使用OSS
@@ -97,4 +113,14 @@ VRCFTtoVMCP.exe と同じフォルダに VRCFTtoVMCP.json を作成して起動�
 - 開発者: hecomi
 - ライセンス: MIT license
 - 備考: 参考に一部実装をコピー
+
+## Newtonsoft Json.NET
+- https://www.newtonsoft.com/json
+- 開発者: James Newton-King
+- ライセンス: MIT license
+
+## MaterialDesignThemes
+- https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit
+- 開発者: James Willock
+- ライセンス: MIT license
 
