@@ -45,6 +45,15 @@ namespace VRCFTtoVMCP
             VRCFTParametersStore.CopyTo(_weights);
             using var oscClient = new OscClient(_address, _port);
             var bundle = new Bundle();
+            if (DynamicSharedParameter.EyeTargetPositionUse)
+            {
+                float x = _weights[VRCFTParametersV2.EyeLeftX] * 0.5f;
+                float y = _weights[VRCFTParametersV2.EyeLeftY] * 0.5f;
+                float z = 0.3f;
+                x *= ((x > 0) ? DynamicSharedParameter.EyeTargetPositionMultiplierRight : DynamicSharedParameter.EyeTargetPositionMultiplierLeft) / 100;
+                y *= ((y > 0) ? DynamicSharedParameter.EyeTargetPositionMultiplierUp : DynamicSharedParameter.EyeTargetPositionMultiplierDown) / 100;
+                bundle.Add(new Message("/VMC/Ext/Set/Eye", 1, x, y, z));
+            }
             bundle.Add(new Message("/VMC/Ext/Blend/Val", "BrowDownLeft", _weights[VRCFTParametersV2.BrowDownLeft]));
             bundle.Add(new Message("/VMC/Ext/Blend/Val", "BrowDownRight", _weights[VRCFTParametersV2.BrowDownRight]));
             bundle.Add(new Message("/VMC/Ext/Blend/Val", "BrowInnerUp", _weights[VRCFTParametersV2.BrowInnerUp]));

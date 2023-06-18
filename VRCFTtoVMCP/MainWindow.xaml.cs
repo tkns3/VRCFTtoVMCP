@@ -1,10 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
+using System.Data;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Timers;
 using System.Windows;
+using System.Windows.Markup;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCFTtoVMCP.Osc;
 
@@ -20,15 +24,27 @@ namespace VRCFTtoVMCP
         readonly VMCPSender _sender = new();
         readonly System.Timers.Timer _timer = new(1000);
 
-
         public MainWindow()
         {
             InitializeComponent();
             Title = $"VRCFTtoVMCP v{Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}";
             _model = (MainWindowViewModel)DataContext;
             _timer.Elapsed += Timer_Elapsed;
-            ReadConfig(out var autoStart);
-            if (autoStart)
+
+            AppConfig? appConfig = ReadConfig();
+            _model.AutoStart = appConfig?.autoStart ?? _model.AutoStart;
+            _model.VmcpSendRatePerSec = appConfig?.rate?.ToString() ?? _model.VmcpSendRatePerSec;
+            _model.VmcpSendDstAddr = appConfig?.addr1 ?? _model.VmcpSendDstAddr;
+            _model.VmcpSendDstPort = appConfig?.port1?.ToString() ?? _model.VmcpSendDstPort;
+            _model.VrcOscRecvSrcPort = appConfig?.port2?.ToString() ?? _model.VrcOscRecvSrcPort;
+            _model.VrcOscSendDstPort = appConfig?.port3?.ToString() ?? _model.VrcOscSendDstPort;
+            _model.EyeTargetPositionUse = appConfig?.EyeTarget?.Use ?? _model.EyeTargetPositionUse;
+            _model.EyeTargetPositionMultiplierUp = appConfig?.EyeTarget?.MultiplierUp ?? _model.EyeTargetPositionMultiplierUp;
+            _model.EyeTargetPositionMultiplierDown = appConfig?.EyeTarget?.MultiplierDown ?? _model.EyeTargetPositionMultiplierDown;
+            _model.EyeTargetPositionMultiplierLeft = appConfig?.EyeTarget?.MultiplierLeft ?? _model.EyeTargetPositionMultiplierLeft;
+            _model.EyeTargetPositionMultiplierRight = appConfig?.EyeTarget?.MultiplierRight ?? _model.EyeTargetPositionMultiplierRight;
+
+            if (_model.AutoStart)
             {
                 Start();
             }
@@ -73,7 +89,10 @@ namespace VRCFTtoVMCP
                 VRChat.CreateVRCAvatarFile("avtr_00000000-0000-0000-0000-000000000001.json");
 
                 _receiver.Start(port: int.Parse(_model.VrcOscRecvSrcPort));
-                _sender.Start(address: _model.VmcpSendDstAddr, port: int.Parse(_model.VmcpSendDstPort), fps: int.Parse(_model.VmcpSendRatePerSec));
+                _sender.Start(
+                    address: _model.VmcpSendDstAddr,
+                    port: int.Parse(_model.VmcpSendDstPort),
+                    fps: int.Parse(_model.VmcpSendRatePerSec));
 
                 using OscClient oscClient = new(_model.VrcOscSendDstAddr, int.Parse(_model.VrcOscSendDstPort));
                 oscClient.Send(new Message("/avatar/change", "avtr_00000000-0000-0000-0000-000000000001"));
@@ -87,7 +106,7 @@ namespace VRCFTtoVMCP
             }
             catch (Exception ex)
             {
-                _model.StatusText = ex.Message;
+                _model.StatusText = $"{DateTime.Now}: Start Failed. [{ex.Message}]";
                 _sender.Stop();
                 _receiver.Stop();
                 _timer.Stop();
@@ -116,49 +135,106 @@ namespace VRCFTtoVMCP
             _model.StatusText = "Status: Stopped.";
         }
 
-        void ReadConfig(out bool autoStart1)
+        AppConfig? ReadConfig()
         {
-            autoStart1 = false;
             string path = "VRCFTtoVMCP.json";
             if (!File.Exists(path))
             {
-                return;
+                return new();
             }
 
-            string jsonText = File.ReadAllText(path);
-            var jsonNode = System.Text.Json.Nodes.JsonNode.Parse(jsonText);
-            var autoStart = jsonNode?["autoStart"]?.ToString();
-            var addr1 = jsonNode?["addr1"]?.ToString();
-            var port1 = jsonNode?["port1"]?.ToString();
-            var port2 = jsonNode?["port2"]?.ToString();
-            var port3 = jsonNode?["port3"]?.ToString();
-            var rate = jsonNode?["rate"]?.ToString();
-
-            if (bool.TryParse(autoStart, out var result))
+            try
             {
-                autoStart1 = result;
+                using var sr = File.OpenText(path);
+                using var reader = new JsonTextReader(sr);
+                var serializer = new JsonSerializer();
+                var deserialized = serializer.Deserialize<AppConfig>(reader);
+                return deserialized;
             }
-            if (addr1?.Length > 0)
+            catch (Exception)
             {
-                _model.VmcpSendDstAddr = addr1;
-            }
-            if (port1?.Length > 0)
-            {
-                _model.VmcpSendDstPort = port1;
-            }
-            if (port2?.Length > 0)
-            {
-                _model.VrcOscRecvSrcPort = port2;
-            }
-            if (port3?.Length > 0)
-            {
-                _model.VrcOscSendDstPort = port3;
-            }
-            if (rate?.Length > 0)
-            {
-                _model.VmcpSendRatePerSec = rate;
+                return new();
             }
         }
+
+        void CreateConfig()
+        {
+            if (_model.IsSaveComplete)
+            {
+                _model.SaveButtonColor = "#FF8EACBB";
+                _model.IsSaveComplete = false;
+                return;
+            }
+            try
+            {
+                _model.IsSaving = true;
+                string path = "VRCFTtoVMCP.json";
+                AppConfig appConfig = new()
+                {
+                    autoStart = _model.AutoStart,
+                    addr1 = _model.VmcpSendDstAddr,
+                    port1 = int.Parse(_model.VmcpSendDstPort),
+                    port2 = int.Parse(_model.VrcOscRecvSrcPort),
+                    port3 = int.Parse(_model.VrcOscSendDstPort),
+                    rate = int.Parse(_model.VmcpSendRatePerSec),
+                    EyeTarget = new()
+                    {
+                        Use = _model.EyeTargetPositionUse,
+                        MultiplierUp = _model.EyeTargetPositionMultiplierUp,
+                        MultiplierDown = _model.EyeTargetPositionMultiplierDown,
+                        MultiplierLeft = _model.EyeTargetPositionMultiplierLeft,
+                        MultiplierRight = _model.EyeTargetPositionMultiplierRight,
+                    }
+                };
+                var jsonString = JsonConvert.SerializeObject(appConfig, Formatting.Indented);
+                File.WriteAllText(path, jsonString, System.Text.Encoding.UTF8);
+                _model.IsSaving = false;
+                _model.SaveButtonCompleteIcon = "Check";
+                _model.IsSaveComplete = true;
+                _model.StatusText = $"{DateTime.Now}: Save Success.";
+            }
+            catch (Exception ex)
+            {
+                _model.IsSaving = false;
+                _model.SaveButtonColor = "#FFBC5052";
+                _model.SaveButtonCompleteIcon = "Close";
+                _model.IsSaveComplete = true;
+                _model.StatusText = $"{DateTime.Now}: Save Failed. [{ex.Message}]";
+            }
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (!_model.IsStop)
+            {
+                Stop();
+            }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            CreateConfig();
+        }
+    }
+
+    internal class AppConfigEyeTarget
+    {
+        public bool? Use = null;
+        public int? MultiplierUp = null;
+        public int? MultiplierDown = null;
+        public int? MultiplierLeft = null;
+        public int? MultiplierRight = null;
+    }
+
+    internal class AppConfig
+    {
+        public bool? autoStart = null;
+        public string? addr1 = null;
+        public int? port1 = null;
+        public int? port2 = null;
+        public int? port3 = null;
+        public int? rate = null;
+        public AppConfigEyeTarget? EyeTarget = null;
     }
 
     internal class ObservableBase : INotifyPropertyChanged
@@ -185,6 +261,7 @@ namespace VRCFTtoVMCP
     internal class MainWindowViewModel : ObservableBase
     {
         private bool _IsStop = true;
+        private bool _AutoStart = false;
         private string _VmcpSendRatePerSec = "30";
         private string _VmcpSendDstAddr = "127.0.0.1";
         private string _VmcpSendDstPort = "39540";
@@ -202,6 +279,7 @@ namespace VRCFTtoVMCP
         private string _StatusText = "Status: Stopped.";
 
         public bool IsStop { get => _IsStop; set => SetProperty(ref _IsStop, value); }
+        public bool AutoStart { get => _AutoStart; set => SetProperty(ref _AutoStart, value); }
         public string VmcpSendRatePerSec { get => _VmcpSendRatePerSec; set => SetProperty(ref _VmcpSendRatePerSec, value); }
         public string VmcpSendDstAddr { get => _VmcpSendDstAddr; set => SetProperty(ref _VmcpSendDstAddr, value); }
         public string VmcpSendDstPort { get => _VmcpSendDstPort; set => SetProperty(ref _VmcpSendDstPort, value); }
@@ -217,13 +295,140 @@ namespace VRCFTtoVMCP
         public string ArrowColorVRCFT2ThisApp { get => _ArrowColorVRCFT2ThisApp; set => SetProperty(ref _ArrowColorVRCFT2ThisApp, value); }
         public string ButtonText { get => _ButtonText; set => SetProperty(ref _ButtonText, value); }
         public string StatusText { get => _StatusText; set => SetProperty(ref _StatusText, value); }
+        public bool EyeTargetPositionUse { get => DynamicSharedParameter.EyeTargetPositionUse; set { DynamicSharedParameter.EyeTargetPositionUse = value; OnPropertyChanged(); } }
+        public int EyeTargetPositionMultiplierUp { get => DynamicSharedParameter.EyeTargetPositionMultiplierUp; set { DynamicSharedParameter.EyeTargetPositionMultiplierUp = value; OnPropertyChanged(); } }
+        public int EyeTargetPositionMultiplierDown { get => DynamicSharedParameter.EyeTargetPositionMultiplierDown; set { DynamicSharedParameter.EyeTargetPositionMultiplierDown = value; OnPropertyChanged(); } }
+        public int EyeTargetPositionMultiplierLeft { get => DynamicSharedParameter.EyeTargetPositionMultiplierLeft; set { DynamicSharedParameter.EyeTargetPositionMultiplierLeft = value; OnPropertyChanged(); } }
+        public int EyeTargetPositionMultiplierRight { get => DynamicSharedParameter.EyeTargetPositionMultiplierRight; set { DynamicSharedParameter.EyeTargetPositionMultiplierRight = value; OnPropertyChanged(); } }
+
+        private bool _IsSaving = false;
+        private int _SaveProgress = 0;
+        private bool _IsSaveComplete = false;
+        private string _SaveButtonCompleteIcon = "Check";
+        private string _SaveButtonColor = "#FF8EACBB";
+
+        public bool IsSaving { get => _IsSaving; set => SetProperty(ref _IsSaving, value); }
+        public int SaveProgress { get => _SaveProgress; set => SetProperty(ref _SaveProgress, value); }
+        public bool IsSaveComplete { get => _IsSaveComplete; set => SetProperty(ref _IsSaveComplete, value); }
+        public string SaveButtonCompleteIcon { get => _SaveButtonCompleteIcon; set => SetProperty(ref _SaveButtonCompleteIcon, value); }
+        public string SaveButtonColor { get => _SaveButtonColor; set => SetProperty(ref _SaveButtonColor, value); }
+    }
+
+    internal class DynamicSharedParameter
+    {
+        private static readonly object _LockObject = new();
+        private static bool _EyeTargetPositionUse = true;
+        private static int _EyeTargetPositionMultiplierUp = 100;
+        private static int _EyeTargetPositionMultiplierDown = 100;
+        private static int _EyeTargetPositionMultiplierLeft = 100;
+        private static int _EyeTargetPositionMultiplierRight = 100;
+
+        public static bool EyeTargetPositionUse
+        {
+            get
+            {
+                bool ret;
+                lock (_LockObject)
+                {
+                    ret = _EyeTargetPositionUse;
+                }
+                return ret;
+            }
+            set
+            {
+                lock (_LockObject)
+                {
+                    _EyeTargetPositionUse = value;
+                }
+            }
+        }
+
+        public static int EyeTargetPositionMultiplierUp
+        {
+            get
+            {
+                int ret;
+                lock (_LockObject)
+                {
+                    ret = _EyeTargetPositionMultiplierUp;
+                }
+                return ret;
+            }
+            set
+            {
+                lock (_LockObject)
+                {
+                    _EyeTargetPositionMultiplierUp = value;
+                }
+            }
+        }
+
+        public static int EyeTargetPositionMultiplierDown
+        {
+            get
+            {
+                int ret;
+                lock (_LockObject)
+                {
+                    ret = _EyeTargetPositionMultiplierDown;
+                }
+                return ret;
+            }
+            set
+            {
+                lock (_LockObject)
+                {
+                    _EyeTargetPositionMultiplierDown = value;
+                }
+            }
+        }
+
+        public static int EyeTargetPositionMultiplierLeft
+        {
+            get
+            {
+                int ret;
+                lock (_LockObject)
+                {
+                    ret = _EyeTargetPositionMultiplierLeft;
+                }
+                return ret;
+            }
+            set
+            {
+                lock (_LockObject)
+                {
+                    _EyeTargetPositionMultiplierLeft = value;
+                }
+            }
+        }
+
+        public static int EyeTargetPositionMultiplierRight
+        {
+            get
+            {
+                int ret;
+                lock (_LockObject)
+                {
+                    ret = _EyeTargetPositionMultiplierRight;
+                }
+                return ret;
+            }
+            set
+            {
+                lock (_LockObject)
+                {
+                    _EyeTargetPositionMultiplierRight = value;
+                }
+            }
+        }
     }
 
     internal static class MessageCount
     {
-        private static object _LockObjectVRCFT2ThisApp = new object();
-        private static object _LockObjectThisApp2VRCFT = new object();
-        private static object _LockObjectThisApp2VMC = new object();
+        private static readonly object _LockObjectVRCFT2ThisApp = new();
+        private static readonly object _LockObjectThisApp2VRCFT = new();
+        private static readonly object _LockObjectThisApp2VMC = new();
         private static int _CountVRCFT2ThisApp = 0;
         private static int _CountThisApp2VRCFT = 0;
         private static int _CountThisApp2VMC = 0;

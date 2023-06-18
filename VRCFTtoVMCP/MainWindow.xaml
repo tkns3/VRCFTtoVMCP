@@ -4,70 +4,233 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VRCFTtoVMCP"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="VRCFTtoVMCP" Height="450" Width="800">
+        Title="VRCFTtoVMCP" Height="500" Width="800" Closing="Window_Closing">
 
     <Window.DataContext>
         <local:MainWindowViewModel/>
-    </Window.DataContext>    
-
+    </Window.DataContext>
+    
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="280" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="25" />
         </Grid.RowDefinitions>
-        <Canvas Height="200">
-            <Image Width="100" Source="Resources/logo_VRCFaceTracking.png" Canvas.Left="32" Canvas.Top="42"/>
-            <Image Width="100" Source="Resources/logo_ThisApp.png" Canvas.Left="349" Canvas.Top="42"/>
-            <Image Width="100" Source="Resources/logo_VirtualMotionCapture.png" Canvas.Left="666" Canvas.Top="42"/>
-            <Line X1="0" Y1="0" X2="200" Y2="0" Stroke="{Binding ArrowColorVRCFT2ThisApp}" StrokeThickness="2" Canvas.Left="135" Canvas.Top="83"/>
-            <Polygon Points="0,0 10,6 0,12" Stroke="{Binding ArrowColorVRCFT2ThisApp}" StrokeThickness="2" Fill="{Binding ArrowColorVRCFT2ThisApp}" Canvas.Left="335" Canvas.Top="77"/>
-            <Line X1="0" Y1="0" X2="200" Y2="0" Stroke="{Binding ArrowColorThisApp2VMC}" StrokeThickness="2" Canvas.Left="452" Canvas.Top="91"/>
-            <Polygon Points="0,0 10,6 0,12" Stroke="{Binding ArrowColorThisApp2VMC}" StrokeThickness="2" Fill="{Binding ArrowColorThisApp2VMC}" Canvas.Left="652" Canvas.Top="85"/>
-            <Line X1="0" Y1="0" X2="200" Y2="0" Stroke="{Binding ArrowColorThisApp2VRCFT}" StrokeThickness="2" Canvas.Left="146" Canvas.Top="98"/>
-            <Polygon Points="10,0 0,6 10,12" Stroke="{Binding ArrowColorThisApp2VRCFT}" StrokeThickness="2" Fill="{Binding ArrowColorThisApp2VRCFT}" Canvas.Left="136" Canvas.Top="92"/>
-            <Canvas Canvas.Left="182" Width="153" Height="48" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <Line X1="0" Y1="0" X2="24" Y2="24" Stroke="#cc8" StrokeThickness="1" Canvas.Left="125" Canvas.Top="48"/>
-                <Polygon Points="0,0 153,0 153,48 0,48" Stroke="#cc8" StrokeThickness="1" Fill="#ffe" Canvas.Left="0" Canvas.Top="0" />
-                <Label Canvas.Left="0" Canvas.Top="0" Content="Address:"/>
-                <TextBox Width="94" Canvas.Left="55" Canvas.Top="4" IsEnabled="False" BorderBrush="#ffff" Text="127.0.0.1"/>
-                <Label Canvas.Left="21" Canvas.Top="22" Content="Port:"/>
-                <TextBox Width="94" Canvas.Left="55" Canvas.Top="26" Text="{Binding VrcOscRecvSrcPort}" IsEnabled="{Binding IsStop}" />
-            </Canvas>
-            <Canvas Canvas.Left="148" Width="153" Height="48" Canvas.Top="128" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Line X1="0" Y1="0" X2="24" Y2="24" Stroke="#cc8" StrokeThickness="1" Canvas.Left="3" Canvas.Top="-24"/>
-                <Polygon Points="0,0 153,0 153,48 0,48" Stroke="#cc8" StrokeThickness="1" Fill="#ffe" Canvas.Left="0" Canvas.Top="0" />
-                <Label Canvas.Left="0" Canvas.Top="0" Content="Address:"/>
-                <TextBox Width="94" Canvas.Left="55" Canvas.Top="4" IsEnabled="False" BorderBrush="#ffff" Text="127.0.0.1"/>
-                <Label Canvas.Left="21" Canvas.Top="22" Content="Port:"/>
-                <TextBox Width="94" Canvas.Left="55" Canvas.Top="26" Text="{Binding VrcOscSendDstPort}" IsEnabled="{Binding IsStop}"/>
-            </Canvas>
-            <Canvas Canvas.Left="499" Width="153" Height="48" Canvas.Top="15" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <Line X1="0" Y1="0" X2="24" Y2="24" Stroke="#cc8" StrokeThickness="1" Canvas.Left="125" Canvas.Top="48"/>
-                <Polygon Points="0,0 153,0 153,48 0,48" Stroke="#cc8" StrokeThickness="1" Fill="#ffe" Canvas.Left="0" Canvas.Top="0" />
-                <Label Canvas.Left="0" Canvas.Top="0" Content="Address:"/>
-                <TextBox Width="94" Canvas.Left="55" Canvas.Top="4" Text="{Binding VmcpSendDstAddr}" IsEnabled="{Binding IsStop}"/>
-                <Label Canvas.Left="21" Canvas.Top="22" Content="Port:"/>
-                <TextBox Width="94" Canvas.Left="55" Canvas.Top="26" Text="{Binding VmcpSendDstPort}" IsEnabled="{Binding IsStop}"/>
-            </Canvas>
-            <Canvas Width="152" Height="26" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Left="148" Canvas.Top="57">
-                <Label Canvas.Left="0" Canvas.Top="0" Width="64" HorizontalContentAlignment="Right" Content="{Binding TrasmissionRateVRCFT2ThisApp}"/>
-                <Label Canvas.Left="64">[packet/sec]</Label>
-            </Canvas>
-            <Canvas Width="152" Height="26" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Left="148" Canvas.Top="97">
-                <Label Canvas.Left="0" Canvas.Top="0" Width="64" HorizontalContentAlignment="Right" Content="{Binding TrasmissionRateThisApp2VRCFT}"/>
-                <Label Canvas.Left="64">[packet/sec]</Label>
-            </Canvas>
-            <Canvas Width="152" Height="26" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="468" Canvas.Top="66">
-                <Label Canvas.Left="0" Canvas.Top="0" Width="64" HorizontalContentAlignment="Right" Content="{Binding TrasmissionRateThisApp2VMC}"/>
-                <Label Canvas.Left="64">[packet/sec]</Label>
-            </Canvas>
+        <TabControl
+            Grid.Row="0"
+            HorizontalContentAlignment="Left"
+            materialDesign:ColorZoneAssist.Background="{DynamicResource MaterialDesignCardBackground}"
+            materialDesign:ColorZoneAssist.Foreground="{DynamicResource PrimaryHueMidBrush}"
+            materialDesign:ColorZoneAssist.Mode="Custom"
+            Style="{StaticResource MaterialDesignFilledTabControl}">
+            <TabItem Header="HOME">
+                <Canvas Margin="0,20,0,0">
+                    <Image Width="100" Source="Resources/logo_VRCFaceTracking.png" Canvas.Left="32" Canvas.Top="42"/>
+                    <Image Width="100" Source="Resources/logo_ThisApp.png" Canvas.Left="349" Canvas.Top="42"/>
+                    <Image Width="100" Source="Resources/logo_VirtualMotionCapture.png" Canvas.Left="666" Canvas.Top="42"/>
+                    <Line X1="0" Y1="0" X2="200" Y2="0" Stroke="{Binding ArrowColorVRCFT2ThisApp}" StrokeThickness="2" Canvas.Left="135" Canvas.Top="83"/>
+                    <Polygon Points="0,0 10,6 0,12" Stroke="{Binding ArrowColorVRCFT2ThisApp}" StrokeThickness="2" Fill="{Binding ArrowColorVRCFT2ThisApp}" Canvas.Left="335" Canvas.Top="77"/>
+                    <Line X1="0" Y1="0" X2="200" Y2="0" Stroke="{Binding ArrowColorThisApp2VMC}" StrokeThickness="2" Canvas.Left="452" Canvas.Top="91"/>
+                    <Polygon Points="0,0 10,6 0,12" Stroke="{Binding ArrowColorThisApp2VMC}" StrokeThickness="2" Fill="{Binding ArrowColorThisApp2VMC}" Canvas.Left="652" Canvas.Top="85"/>
+                    <Line X1="0" Y1="0" X2="200" Y2="0" Stroke="{Binding ArrowColorThisApp2VRCFT}" StrokeThickness="2" Canvas.Left="146" Canvas.Top="98"/>
+                    <Polygon Points="10,0 0,6 10,12" Stroke="{Binding ArrowColorThisApp2VRCFT}" StrokeThickness="2" Fill="{Binding ArrowColorThisApp2VRCFT}" Canvas.Left="136" Canvas.Top="92"/>
+                    <Canvas Canvas.Left="182" Width="153" Height="52" Canvas.Top="2" HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <Line X1="0" Y1="0" X2="24" Y2="24" Stroke="Black" StrokeThickness="1" Canvas.Left="125" Canvas.Top="48"/>
+                        <Polygon Points="0,0 153,0 153,52 0,52" Stroke="WhiteSmoke" StrokeThickness="1" Fill="WhiteSmoke" Canvas.Left="0" Canvas.Top="0" />
+                        <Label Canvas.Left="0" Canvas.Top="0" Content="Address:"/>
+                        <TextBox Width="94" Canvas.Left="55" IsEnabled="False" BorderBrush="#ffff" Text="127.0.0.1" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <Label Canvas.Left="21" Canvas.Top="23" Content="Port:" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <TextBox Width="94" Canvas.Left="55" Canvas.Top="23" Text="{Binding VrcOscRecvSrcPort}" IsEnabled="{Binding IsStop}" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                    </Canvas>
+                    <Canvas Canvas.Left="148" Width="153" Height="52" Canvas.Top="131" HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <Line X1="0" Y1="0" X2="24" Y2="24" Stroke="Black" StrokeThickness="1" Canvas.Left="3" Canvas.Top="-24"/>
+                        <Polygon Points="0,0 153,0 153,52 0,52" Stroke="WhiteSmoke" StrokeThickness="1" Fill="WhiteSmoke" Canvas.Left="0" Canvas.Top="0" />
+                        <Label Canvas.Left="0" Canvas.Top="0" Content="Address:"/>
+                        <TextBox Width="94" Canvas.Left="55" IsEnabled="False" BorderBrush="#ffff" Text="127.0.0.1" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <Label Canvas.Left="21" Canvas.Top="23" Content="Port:" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <TextBox Width="94" Canvas.Left="55" Canvas.Top="23" Text="{Binding VrcOscSendDstPort}" IsEnabled="{Binding IsStop}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="493" Width="153" Height="52" Canvas.Top="2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Line X1="0" Y1="0" X2="30" Y2="30" Stroke="Black" StrokeThickness="1" Canvas.Left="125" Canvas.Top="48"/>
+                        <Polygon Points="0,0 153,0 153,52 0,52" Stroke="WhiteSmoke" StrokeThickness="1" Fill="WhiteSmoke" Canvas.Left="0" Canvas.Top="0" />
+                        <Label Canvas.Left="0" Canvas.Top="0" Content="Address:"/>
+                        <TextBox Width="94" Canvas.Left="55" Text="{Binding VmcpSendDstAddr}" IsEnabled="{Binding IsStop}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <Label Canvas.Left="21" Canvas.Top="24" Content="Port:" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <TextBox Width="94" Canvas.Left="55" Canvas.Top="23" Text="{Binding VmcpSendDstPort}" IsEnabled="{Binding IsStop}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    </Canvas>
+                    <Canvas Width="152" Height="26" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Left="148" Canvas.Top="57">
+                        <Label Canvas.Left="0" Canvas.Top="0" Width="64" HorizontalContentAlignment="Right" Content="{Binding TrasmissionRateVRCFT2ThisApp}"/>
+                        <Label Canvas.Left="64">[packet/sec]</Label>
+                    </Canvas>
+                    <Canvas Width="152" Height="26" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Left="148" Canvas.Top="97">
+                        <Label Canvas.Left="0" Canvas.Top="0" Width="64" HorizontalContentAlignment="Right" Content="{Binding TrasmissionRateThisApp2VRCFT}"/>
+                        <Label Canvas.Left="64">[packet/sec]</Label>
+                    </Canvas>
+                    <Canvas Width="152" Height="26" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="468" Canvas.Top="66">
+                        <Label Canvas.Left="0" Canvas.Top="0" Width="64" HorizontalContentAlignment="Right" Content="{Binding TrasmissionRateThisApp2VMC}"/>
+                        <Label Canvas.Left="64">[packet/sec]</Label>
+                    </Canvas>
 
-            <Label Canvas.Left="472" Canvas.Top="108" HorizontalAlignment="Center" VerticalAlignment="Top">Send rate per second:</Label>
-            <TextBox Width="32" Canvas.Left="597" Canvas.Top="112" HorizontalAlignment="Center" VerticalAlignment="Top" Text="{Binding VmcpSendRatePerSec}" IsEnabled="{Binding IsStop}"/>
-        </Canvas>
-        <Button Grid.Row="1" Content="{Binding ButtonText}" Height="Auto" FontFamily="Arial Black" FontSize="72" Click="Button_Click"></Button>
+                    <Label Canvas.Left="472" Canvas.Top="108" HorizontalAlignment="Center" VerticalAlignment="Top">Send rate per second:</Label>
+                    <TextBox Width="32" Canvas.Left="597" Canvas.Top="108" HorizontalAlignment="Center" VerticalAlignment="Top" Text="{Binding VmcpSendRatePerSec}" IsEnabled="{Binding IsStop}"/>
+                </Canvas>
+            </TabItem>
+            <TabItem Header="OPTIONS">
+                <Canvas Margin="0,20,0,0">
+                    <Canvas Canvas.Left="400" Canvas.Top="0">
+                        <TextBlock Text="Other" FontWeight="Bold" FontSize="16" Canvas.Left="0" Canvas.Top="0"/>
+                        <Grid Canvas.Left="22" Canvas.Top="24">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="160" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Auto Start" VerticalAlignment="Center"/>
+                            <ToggleButton
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                IsChecked="{Binding AutoStart}"
+                                ToolTip="If enabled, it will automatically START when the app is started."
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"/>
+                        </Grid>
+                    </Canvas>
+                    <Canvas Canvas.Left="400" Canvas.Top="100">
+                        <TextBlock Text="Action" FontWeight="Bold" FontSize="16" Canvas.Left="0" Canvas.Top="0"/>
+                        <TextBlock
+                            Canvas.Top="30"
+                            Canvas.Left="22"
+                            VerticalAlignment="Center"
+                            Text="Save Config:" />
+                        <Button
+                            Canvas.Top="20"
+                            Canvas.Left="100"
+                            Height="36"
+                            Width="36"
+                            Background="{Binding SaveButtonColor}"
+                            BorderBrush="{Binding SaveButtonColor}"
+                            materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsSaving}"
+                            materialDesign:ButtonProgressAssist.Value="{Binding SaveProgress}"
+                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            Style="{StaticResource MaterialDesignFloatingActionLightButton}"
+                            ToolTip="Create a VRCFTtoVMCP.json file in the same folder as the executable file. Having this file restores the settings on startup."
+                            Click="Button_Click_1">
+                            <!-- simple example of toggling/animating pack icon with a data trigger -->
+                            <materialDesign:PackIcon Width="24" Height="24">
+                                <materialDesign:PackIcon.Style>
+                                    <Style TargetType="materialDesign:PackIcon" BasedOn="{StaticResource {x:Type materialDesign:PackIcon}}">
+                                        <Setter Property="Kind" Value="ContentSave" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSaveComplete}" Value="True">
+                                                <Setter Property="Kind" Value="{Binding SaveButtonCompleteIcon}" />
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation
+                                                                Storyboard.TargetProperty="Opacity"
+                                                                From="0"
+                                                                To="1"
+                                                                Duration="0:0:0.8" />
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </materialDesign:PackIcon.Style>
+                            </materialDesign:PackIcon>
+                        </Button>
+                    </Canvas>
+                    <Canvas Canvas.Left="20">
+                        <TextBlock Text="Eye Tracking Target Position" FontWeight="Bold" FontSize="16" Canvas.Left="0" Canvas.Top="0"/>
+                        <Grid Canvas.Left="22" Canvas.Top="24">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="150" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Use" VerticalAlignment="Center"/>
+                            <ToggleButton
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                IsChecked="{Binding EyeTargetPositionUse}"
+                                ToolTip="If enabled, the VMC Protocol's Eye Tracking Target Position (VMC/Ext/Set/Eye) will be sent."
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding EyeTargetPositionMultiplierUp, StringFormat=Multiplier for up ({0}%)}" VerticalAlignment="Center"/>
+                            <Slider
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Maximum="200"
+                                Minimum="0"
+                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                TickFrequency="10"
+                                TickPlacement="BottomRight"
+                                SmallChange="10"
+                                Value="{Binding EyeTargetPositionMultiplierUp}"
+                                VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding EyeTargetPositionMultiplierDown, StringFormat=Multiplier for down ({0}%)}" VerticalAlignment="Center"/>
+                            <Slider
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Maximum="200"
+                                Minimum="0"
+                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                TickFrequency="10"
+                                TickPlacement="BottomRight"
+                                SmallChange="10"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding EyeTargetPositionMultiplierDown}"
+                                VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding EyeTargetPositionMultiplierLeft, StringFormat=Multiplier for left ({0}%)}" VerticalAlignment="Center"/>
+                            <Slider
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Maximum="200"
+                                Minimum="0"
+                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                TickFrequency="10"
+                                TickPlacement="BottomRight"
+                                SmallChange="10"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding EyeTargetPositionMultiplierLeft}"
+                                VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding EyeTargetPositionMultiplierRight, StringFormat=Multiplier for right ({0}%)}" VerticalAlignment="Center"/>
+                            <Slider
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                Maximum="200"
+                                Minimum="0"
+                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                TickFrequency="10"
+                                TickPlacement="BottomRight"
+                                SmallChange="10"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding EyeTargetPositionMultiplierRight}"
+                                VerticalAlignment="Center" />
+                        </Grid>
+                    </Canvas>
+                </Canvas>
+            </TabItem>
+        </TabControl>
+        <Button Grid.Row="1" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="{Binding ButtonText}" Height="auto" FontFamily="Arial Black" FontSize="72" Click="Button_Click"/>
         <StatusBar Grid.Row="2" Height="25">
             <StatusBarItem>
                 <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Text="{Binding StatusText}"/>
