@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace VRCFTtoVMCP
@@ -43,7 +44,7 @@ namespace VRCFTtoVMCP
         {
             get
             {
-                return _Weights[(int)param];
+                return Math.Clamp(_Weights[(int)param], -1.0f, 1.0f);
             }
             set
             {
@@ -55,7 +56,7 @@ namespace VRCFTtoVMCP
         {
             get
             {
-                return _Weights[param];
+                return Math.Clamp(_Weights[param], -1.0f, 1.0f);
             }
             set
             {
@@ -84,6 +85,16 @@ namespace VRCFTtoVMCP
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _Weights.GetEnumerator();
+        }
+
+        public float Original(VRCFTParametersV2 param)
+        {
+            return _Weights[(int)param];
+        }
+
+        public float Original(int param)
+        {
+            return _Weights[param];
         }
 
         public override string ToString()
