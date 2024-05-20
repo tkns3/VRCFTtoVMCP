@@ -1,14 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.IO;
+using System.Net;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Timers;
 using System.Windows;
-using System.Windows.Markup;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCFTtoVMCP.Osc;
 
@@ -23,6 +23,8 @@ namespace VRCFTtoVMCP
         readonly VrcOscReceiver _receiver = new();
         readonly VMCPSender _sender = new();
         readonly System.Timers.Timer _timer = new(1000);
+        readonly Makaretu.Dns.ServiceProfile service;
+        readonly Makaretu.Dns.ServiceDiscovery serviceDiscovery;
 
         public MainWindow()
         {
@@ -43,6 +45,11 @@ namespace VRCFTtoVMCP
             _model.EyeTargetPositionMultiplierDown = appConfig?.EyeTarget?.MultiplierDown ?? _model.EyeTargetPositionMultiplierDown;
             _model.EyeTargetPositionMultiplierLeft = appConfig?.EyeTarget?.MultiplierLeft ?? _model.EyeTargetPositionMultiplierLeft;
             _model.EyeTargetPositionMultiplierRight = appConfig?.EyeTarget?.MultiplierRight ?? _model.EyeTargetPositionMultiplierRight;
+
+            int port = OscJsonServer.Start(61891);
+            service = new Makaretu.Dns.ServiceProfile($"VRChat-Client-{new Random().Next(100000, 1000000)}", "_oscjson._tcp", (ushort)port, new IPAddress[] { IPAddress.Loopback });
+            serviceDiscovery = new Makaretu.Dns.ServiceDiscovery();
+            serviceDiscovery.Advertise(service);
 
             if (_model.AutoStart)
             {
@@ -94,9 +101,8 @@ namespace VRCFTtoVMCP
                     port: int.Parse(_model.VmcpSendDstPort),
                     fps: int.Parse(_model.VmcpSendRatePerSec));
 
-                using OscClient oscClient = new(_model.VrcOscSendDstAddr, int.Parse(_model.VrcOscSendDstPort));
-                oscClient.Send(new Message("/avatar/change", "avtr_00000000-0000-0000-0000-000000000001"));
-                MessageCount.CountUpThisApp2VRCFT();
+                OscJsonServer.TrackingEnable = true;
+                SendAvatarChange("avtr_00000000-0000-0000-0000-000000000001");
 
                 _timer.AutoReset = true;
                 _timer.Start();
@@ -117,9 +123,8 @@ namespace VRCFTtoVMCP
         {
             try
             {
-                using OscClient oscClient = new(_model.VrcOscSendDstAddr, int.Parse(_model.VrcOscSendDstPort));
-                oscClient.Send(new Message("/avatar/change", "avtr_00000000-0000-0000-0000-000000000000"));
-                MessageCount.CountUpThisApp2VRCFT();
+                OscJsonServer.TrackingEnable = false;
+                SendAvatarChange("avtr_00000000-0000-0000-0000-000000000000");
             }
             catch (Exception)
             {
@@ -133,6 +138,27 @@ namespace VRCFTtoVMCP
             _model.IsStop = true;
             _model.ButtonText = "START";
             _model.StatusText = "Status: Stopped.";
+        }
+
+        async void SendAvatarChange(string id)
+        {
+            using OscClient oc1 = new(_model.VrcOscSendDstAddr, int.Parse(_model.VrcOscSendDstPort));
+            oc1.Send(new Message("/avatar/change", id));
+            MessageCount.CountUpThisApp2VRCFT();
+
+            IReadOnlyList<Zeroconf.IZeroconfHost> results = await Zeroconf.ZeroconfResolver.ResolveAsync("_osc._udp.local.");
+            foreach (var result in results)
+            {
+                foreach (var service in result.Services)
+                {
+                    System.Diagnostics.Debug.WriteLine($"{service.Key} {service.Value.Port}");
+                    if (service.Key.StartsWith("VRCFT-"))
+                    {
+                        using OscClient oc2 = new(_model.VrcOscSendDstAddr, service.Value.Port);
+                        oc2.Send(new Message("/avatar/change", id));
+                    }
+                }
+            }
         }
 
         AppConfig? ReadConfig()
@@ -209,6 +235,10 @@ namespace VRCFTtoVMCP
             {
                 Stop();
             }
+
+            serviceDiscovery.Unadvertise(service);
+            serviceDiscovery.Dispose();
+            OscJsonServer.Stop();
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)

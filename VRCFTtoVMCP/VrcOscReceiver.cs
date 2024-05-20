@@ -56,7 +56,7 @@ namespace VRCFTtoVMCP
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(ex);
+                    //System.Diagnostics.Debug.WriteLine(ex);
                     _running = false;
                 }
             }

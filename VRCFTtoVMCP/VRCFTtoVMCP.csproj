@@ -22,17 +22,19 @@
     <Content Include="logo_VRCFTtoVMCP.ico" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\avtr_00000000-0000-0000-0000-000000000000.json" />
-    <EmbeddedResource Include="Resources\avtr_00000000-0000-0000-0000-000000000001.json" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <Resource Include="Resources\logo_ThisApp.png" />
-    <Resource Include="Resources\logo_VirtualMotionCapture.png" />
-    <Resource Include="Resources\logo_VRCFaceTracking.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\avtr_00000000-0000-0000-0000-000000000000.json" />
+		<EmbeddedResource Include="Resources\avtr_00000000-0000-0000-0000-000000000001.json" />
+		<PackageReference Include="Makaretu.Dns.Multicast.New" Version="0.31.0" />
+		<PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Zeroconf" Version="3.6.11" />
+		<Resource Include="Resources\logo_ThisApp.png" />
+		<Resource Include="Resources\logo_VirtualMotionCapture.png" />
+		<Resource Include="Resources\logo_VRCFaceTracking.png" />
+	</ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
