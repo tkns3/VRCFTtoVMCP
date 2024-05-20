@@ -122,7 +122,7 @@
                             BorderBrush="{Binding SaveButtonColor}"
                             materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsSaving}"
                             materialDesign:ButtonProgressAssist.Value="{Binding SaveProgress}"
-                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            IsEnabled="{Binding DataContext.IsStop, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                             Style="{StaticResource MaterialDesignFloatingActionLightButton}"
                             ToolTip="Create a VRCFTtoVMCP.json file in the same folder as the executable file. Having this file restores the settings on startup."
                             Click="Button_Click_1">
