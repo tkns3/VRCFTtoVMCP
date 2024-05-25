@@ -51,6 +51,12 @@ namespace VRCFTtoVMCP
             serviceDiscovery = new Makaretu.Dns.ServiceDiscovery();
             serviceDiscovery.Advertise(service);
 
+            // Announce() だけだと VRCFT が反応しない。
+            // Unadvertise() で Goodbyeパケット投げると VRCFT がなぜか反応するのでとりあえずこの実装としておく。
+            serviceDiscovery.Unadvertise(service);
+            serviceDiscovery.Advertise(service);
+            serviceDiscovery.Announce(service);
+
             if (_model.AutoStart)
             {
                 Start();
@@ -78,11 +84,6 @@ namespace VRCFTtoVMCP
 
         void Button_Click(object sender, RoutedEventArgs e)
         {
-            // Announce() だと VRCFT が反応しない。
-            // Unadvertise() で Goodbyeパケット投げると VRCFT がなぜか反応するのでとりあえずこの実装としておく。
-            serviceDiscovery.Unadvertise(service);
-            serviceDiscovery.Advertise(service);
-
             if (_model.IsStop)
             {
                 Start();
